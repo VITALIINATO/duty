@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>График дежурств</title>
+  <style>
+    :root {
+      --primary-color: #2E4039; /* Темно-зеленый */
+      --secondary-color: #5A7F6A; /* Хаки */
+      --accent-color: #C2B280; /* Песочный */
+      --bg-color: #1C1C1C; /* Тёмно-серый фон */
+      --text-color: #F0F0E0;
+      --card-bg: #2A2A2A;
+      --dark-gray: #444;
+      --light-gray: #555;
+      --border-radius: 0.3rem;
+      --transition-speed: 0.3s;
+      --font-family: 'Courier New', Courier, monospace;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      min-height: 100vh;
+      padding: 1rem;
+      gap: 1.5rem;
+      flex-direction: column;
+      background-image: url('https://www.transparenttextures.com/patterns/diagonal-noise.png');  
+      background-repeat: repeat;
+    }
+    .container {
+      width: 100%;
+      max-width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #333;
+    }
+    header {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border-bottom: 2px solid var(--secondary-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header .date-range {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-top: 0.2rem;
+      font-weight: normal;
+    }
+    header .date-picker {
+      margin-top: 0.2rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--border-radius);
+      border: none;
+      font-size: 0.8rem;
+      background: #333;
+      color: white;
+      font-family: var(--font-family);
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .schedule {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .schedule-item {
+      padding: 0.3rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background var(--transition-speed), transform var(--transition-speed);
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--dark-gray);
+      border-left: 3px solid var(--accent-color);
+    }
+    .schedule-item:nth-child(even) {
+      border-left: 3px solid var(--secondary-color);
+    }
+    .draggable-over {
+      outline: 2px dashed var(--accent-color);
+      background: #3a3a3a !important;
+    }
+    .footer-section {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      background: #222;
+      border-top: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .footer-section > div {
+      flex: 1;
+      min-width: 200px;
+      margin-bottom: 10px;
+    }
+    .footer-section label {
+      display: block;
+      font-weight: bold;
+      margin-top: 0.5rem;
+      color: var(--accent-color);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .target-area {
+      background: #333;
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      min-height: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      align-items: flex-start;
+      border: 1px dashed var(--secondary-color);
+    }
+    .target-area span {
+      background: var(--secondary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--border-radius);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background var(--transition-speed);
+      font-family: var(--font-family);
+    }
+    .target-area span:hover {
+      background: var(--accent-color);
+      color: black;
+    }
+    .name-buttons-container {
+        margin-top: 80px;
+       background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  /* width: 100%; */
+  max-width: 80px;
+  padding: 1rem;
+  border: 1px solid #333;
+  font-family: var(--font-family);
+    }
+    .name-buttons-container h2 {
+      font-size: 1rem;
+      color: var(--accent-color);
+      margin-bottom: 1rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .name-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    button.name-btn {
+      background: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--border-radius);
+      cursor: grab;
+      transition: background var(--transition-speed), transform var(--transition-speed);
+      font-size: 0.85rem;
+      text-align: center;
+      font-family: var(--font-family);
+      letter-spacing: 0.5px;
+      border: 1px solid #111;
+    }
+    button.name-btn:hover {
+      background: var(--accent-color);
+      color: black;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    @media (min-width: 600px) {
+      body {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .container {
+        max-width: 400px;
+      }
+      .name-buttons-container {
+        max-width: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- График -->
+  <div class="container">
+    <header>
+      <div class="date-range" id="dateRange1">Выбрать дату</div>
+      <input type="date" class="date-picker" id="datePicker1" />
+    </header>
+    <main>
+      <section class="time-column">
+        <div id="schedule1" class="schedule"></div>
+      </section>
+    </main>
+    <footer class="footer-section">
+      <div>
+        <label for="leader1">Дежурный:</label>
+        <div id="leader1" class="target-area" ondragover="handleDragOver(event)"
+          ondrop="handleDropToLeader(event, this)"></div>
+      </div>
+      <div>
+        <label for="absent1">Увал:</label>
+        <div id="absent1" class="target-area" ondragover="handleDragOver(event)"
+          ondrop="handleDropToTarget(event, this)"></div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Имена сотрудников вертикально -->
+  <div class="name-buttons-container">
+    <!-- <h2>Сотрудники</h2> -->
+    <div id="name-buttons" class="name-buttons"></div>
+  </div>
+
+  <script>
+    const names = [
+      "НАТО", "Нік", "Порш", "Тесла", "Жекос",
+      "Кот", "Вірус", "Грозний", "Падре", "Сіма",
+      "Ваха", "Каїр"
+    ];
+    const timeSlots = [
+      "08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00",
+      "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00",
+      "20:00 - 22:00", "22:00 - 00:00", "00:00 - 02:00",
+      "02:00 - 04:00", "04:00 - 06:00", "06:00 - 08:00"
+    ];
+    let draggedItem = null;
+
+    function createScheduleSlots(containerId, dateRangeId, datePickerId) {
+      const schedule = document.getElementById(containerId);
+      schedule.innerHTML = '';
+      timeSlots.forEach((slot, index) => {
+        const div = document.createElement('div');
+        div.className = 'schedule-item';
+        div.setAttribute('data-id', `slot-${index}`);
+        div.setAttribute('data-time', slot);
+        div.setAttribute('draggable', true);
+        div.innerHTML = `<strong>${slot}</strong><span class="assigned-names" style="margin-left: 10px; font-weight: bold;"></span>`;
+        div.addEventListener('dragover', handleDragOver);
+        div.addEventListener('drop', (e) => handleDropToSlot(e, div));
+        div.addEventListener('dragenter', handleDragEnter);
+        div.addEventListener('dragleave', handleDragLeave);
+        schedule.appendChild(div);
+      });
+
+      // Обработчик даты
+      document.getElementById(datePickerId).addEventListener('change', function () {
+        const selectedDate = new Date(this.value);
+        if (!isNaN(selectedDate.getTime())) {
+          const day = String(selectedDate.getDate()).padStart(2, '0');
+          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+          const nextDay = new Date(selectedDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          const nday = String(nextDay.getDate()).padStart(2, '0');
+          const nmonth = String(nextDay.getMonth() + 1).padStart(2, '0');
+          document.getElementById(dateRangeId).textContent = `с ${day}.${month} по ${nday}.${nmonth}`;
+        } else {
+          document.getElementById(dateRangeId).textContent = 'Выберите дату';
+        }
+      });
+    }
+
+    function createNameButtons() {
+      const container = document.getElementById('name-buttons');
+      container.innerHTML = '';
+      names.forEach((name) => {
+        const btn = document.createElement('button');
+        btn.className = 'name-btn';
+        btn.textContent = name;
+        btn.setAttribute('draggable', true);
+        btn.setAttribute('data-name', name);
+        btn.addEventListener('dragstart', handleDragStart);
+        btn.addEventListener('dragend', handleDragEnd);
+        container.appendChild(btn);
+      });
+    }
+
+    function handleDragStart(e) {
+      draggedItem = this;
+      setTimeout(() => this.style.opacity = '0.5', 0);
+    }
+
+    function handleDragEnd(e) {
+      this.style.opacity = '1';
+      draggedItem = null;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function handleDragEnter(e) {
+      e.target.classList.add('draggable-over');
+    }
+
+    function handleDragLeave(e) {
+      e.target.classList.remove('draggable-over');
+    }
+
+    function handleDropToSlot(e, target) {
+      e.preventDefault();
+      if (!draggedItem) return;
+      const name = draggedItem.getAttribute('data-name');
+      const assignedNamesSpan = target.querySelector('.assigned-names');
+      if ([...assignedNamesSpan.childNodes].some(n => n.textContent === name)) return;
+      const span = document.createElement('span');
+      span.textContent = name;
+      span.style.marginLeft = '6px';
+      span.style.fontWeight = 'bold';
+      span.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        span.remove();
+      });
+      assignedNamesSpan.appendChild(span);
+      target.classList.remove('draggable-over');
+    }
+
+    function handleDropToTarget(e, target) {
+      e.preventDefault();
+      if (!draggedItem) return;
+      const name = draggedItem.getAttribute('data-name');
+      if (![...target.children].some(child => child.textContent === name)) {
+        const span = document.createElement('span');
+        span.textContent = name;
+        span.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          span.remove();
+        });
+        target.appendChild(span);
+      }
+    }
+
+    function handleDropToLeader(e, target) {
+      e.preventDefault();
+      if (!draggedItem) return;
+      target.innerHTML = '';
+      const name = draggedItem.getAttribute('data-name');
+      const span = document.createElement('span');
+      span.textContent = name;
+      span.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        span.remove();
+      });
+      target.appendChild(span);
+    }
+
+    // Инициализация
+    createScheduleSlots('schedule1', 'dateRange1', 'datePicker1');
+    createNameButtons();
+  </script>
+</body>
+</html>
