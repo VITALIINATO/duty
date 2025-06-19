@@ -1,383 +1,684 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>График дежурств</title>
-  <style>
-    :root {
-      --primary-color: #2E4039; /* Темно-зеленый */
-      --secondary-color: #5A7F6A; /* Хаки */
-      --accent-color: #C2B280; /* Песочный */
-      --bg-color: #1C1C1C; /* Тёмно-серый фон */
-      --text-color: #F0F0E0;
-      --card-bg: #2A2A2A;
-      --dark-gray: #444;
-      --light-gray: #555;
-      --border-radius: 0.3rem;
-      --transition-speed: 0.3s;
-      --font-family: 'Courier New', Courier, monospace;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: var(--font-family);
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      align-items: start;
-      min-height: 100vh;
-      padding: 1rem;
-      gap: 1.5rem;
-      flex-direction: column;
-      background-image: url('https://www.transparenttextures.com/patterns/diagonal-noise.png');  
-      background-repeat: repeat;
-    }
-    .container {
-      width: 100%;
-      max-width: 100%;
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #333;
-    }
-    header {
-      background: var(--primary-color);
-      color: white;
-      padding: 0.5rem;
-      text-align: center;
-      font-size: 1.3rem;
-      font-weight: bold;
-      border-bottom: 2px solid var(--secondary-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    header .date-range {
-      font-size: 1rem;
-      opacity: 0.9;
-      margin-top: 0.2rem;
-      font-weight: normal;
-    }
-    header .date-picker {
-      margin-top: 0.2rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: var(--border-radius);
-      border: none;
-      font-size: 0.8rem;
-      background: #333;
-      color: white;
-      font-family: var(--font-family);
-    }
-    main {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1rem;
-    }
-    .schedule {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-    .schedule-item {
-      padding: 0.3rem;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background var(--transition-speed), transform var(--transition-speed);
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--dark-gray);
-      border-left: 3px solid var(--accent-color);
-    }
-    .schedule-item:nth-child(even) {
-      border-left: 3px solid var(--secondary-color);
-    }
-    .draggable-over {
-      outline: 2px dashed var(--accent-color);
-      background: #3a3a3a !important;
-    }
-    .footer-section {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      background: #222;
-      border-top: 1px solid #333;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .footer-section > div {
-      flex: 1;
-      min-width: 200px;
-      margin-bottom: 10px;
-    }
-    .footer-section label {
-      display: block;
-      font-weight: bold;
-      margin-top: 0.5rem;
-      color: var(--accent-color);
-      text-align: center;
-      font-size: 0.9rem;
-    }
-    .target-area {
-      background: #333;
-      padding: 0.5rem;
-      border-radius: var(--border-radius);
-      min-height: 30px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-      align-items: flex-start;
-      border: 1px dashed var(--secondary-color);
-    }
-    .target-area span {
-      background: var(--secondary-color);
-      color: white;
-      padding: 0.25rem 0.5rem;
-      border-radius: var(--border-radius);
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: background var(--transition-speed);
-      font-family: var(--font-family);
-    }
-    .target-area span:hover {
-      background: var(--accent-color);
-      color: black;
-    }
-    .name-buttons-container {
-        margin-top: 80px;
-       background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  /* width: 100%; */
-  max-width: 80px;
-  padding: 1rem;
-  border: 1px solid #333;
-  font-family: var(--font-family);
-    }
-    .name-buttons-container h2 {
-      font-size: 1rem;
-      color: var(--accent-color);
-      margin-bottom: 1rem;
-      text-align: center;
-      letter-spacing: 1px;
-    }
-    .name-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    button.name-btn {
-      background: var(--secondary-color);
-      color: white;
-      border: none;
-      padding: 0.5rem 0.75rem;
-      border-radius: var(--border-radius);
-      cursor: grab;
-      transition: background var(--transition-speed), transform var(--transition-speed);
-      font-size: 0.85rem;
-      text-align: center;
-      font-family: var(--font-family);
-      letter-spacing: 0.5px;
-      border: 1px solid #111;
-    }
-    button.name-btn:hover {
-      background: var(--accent-color);
-      color: black;
-      transform: translateY(-2px);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Пентагон</title>
 
-    @media (min-width: 600px) {
-      body {
-        flex-direction: row;
-        align-items: flex-start;
-      }
-      .container {
-        max-width: 400px;
-      }
-      .name-buttons-container {
-        max-width: 400px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- График -->
-  <div class="container">
-    <header>
-      <div class="date-range" id="dateRange1">Выбрать дату</div>
-      <input type="date" class="date-picker" id="datePicker1" />
-    </header>
-    <main>
-      <section class="time-column">
-        <div id="schedule1" class="schedule"></div>
-      </section>
-    </main>
-    <footer class="footer-section">
-      <div>
-        <label for="leader1">Дежурный:</label>
-        <div id="leader1" class="target-area" ondragover="handleDragOver(event)"
-          ondrop="handleDropToLeader(event, this)"></div>
-      </div>
-      <div>
-        <label for="absent1">Увал:</label>
-        <div id="absent1" class="target-area" ondragover="handleDragOver(event)"
-          ondrop="handleDropToTarget(event, this)"></div>
-      </div>
-    </footer>
-  </div>
+    <!-- Подключение Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Имена сотрудников вертикально -->
-  <div class="name-buttons-container">
-    <!-- <h2>Сотрудники</h2> -->
-    <div id="name-buttons" class="name-buttons"></div>
-  </div>
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2E4039;
+            /* Темно-зеленый */
+            --secondary-color: #5A7F6A;
+            /* Хаки */
+            --accent-color: #f1e0be;
+            /* Песочный */
+            --bg-color: #1C1C1C;
+            /* Тёмно-серый фон */
+            --text-color: #F0F0E0;
+            --card-bg: #2A2A2A;
+            --dark-gray: #444;
+            --light-gray: #555;
+            --border-radius: 0.3rem;
+            --transition-speed: 0.3s;
+            --font-family: 'Courier New', Courier, monospace;
+            --fourth-color: #07fc6d;
+            --leader-color: #FF5733;
+            /* Ярко-оранжевый для чергового */
+            --absent-color: #33ff70;
+            /* Сине-голубой для увала */
+            --third-color: #fc0707;
 
-  <script>
-    const names = [
-      "НАТО", "Нік", "Порш", "Тесла", "Жекос",
-      "Кот", "Вірус", "Грозний", "Падре", "Сіма",
-      "Ваха", "Каїр"
-    ];
-    const timeSlots = [
-      "08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00",
-      "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00",
-      "20:00 - 22:00", "22:00 - 00:00", "00:00 - 02:00",
-      "02:00 - 04:00", "04:00 - 06:00", "06:00 - 08:00"
-    ];
-    let draggedItem = null;
-
-    function createScheduleSlots(containerId, dateRangeId, datePickerId) {
-      const schedule = document.getElementById(containerId);
-      schedule.innerHTML = '';
-      timeSlots.forEach((slot, index) => {
-        const div = document.createElement('div');
-        div.className = 'schedule-item';
-        div.setAttribute('data-id', `slot-${index}`);
-        div.setAttribute('data-time', slot);
-        div.setAttribute('draggable', true);
-        div.innerHTML = `<strong>${slot}</strong><span class="assigned-names" style="margin-left: 10px; font-weight: bold;"></span>`;
-        div.addEventListener('dragover', handleDragOver);
-        div.addEventListener('drop', (e) => handleDropToSlot(e, div));
-        div.addEventListener('dragenter', handleDragEnter);
-        div.addEventListener('dragleave', handleDragLeave);
-        schedule.appendChild(div);
-      });
-
-      // Обработчик даты
-      document.getElementById(datePickerId).addEventListener('change', function () {
-        const selectedDate = new Date(this.value);
-        if (!isNaN(selectedDate.getTime())) {
-          const day = String(selectedDate.getDate()).padStart(2, '0');
-          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-          const nextDay = new Date(selectedDate);
-          nextDay.setDate(nextDay.getDate() + 1);
-          const nday = String(nextDay.getDate()).padStart(2, '0');
-          const nmonth = String(nextDay.getMonth() + 1).padStart(2, '0');
-          document.getElementById(dateRangeId).textContent = `с ${day}.${month} по ${nday}.${nmonth}`;
-        } else {
-          document.getElementById(dateRangeId).textContent = 'Выберите дату';
         }
-      });
-    }
 
-    function createNameButtons() {
-      const container = document.getElementById('name-buttons');
-      container.innerHTML = '';
-      names.forEach((name) => {
-        const btn = document.createElement('button');
-        btn.className = 'name-btn';
-        btn.textContent = name;
-        btn.setAttribute('draggable', true);
-        btn.setAttribute('data-name', name);
-        btn.addEventListener('dragstart', handleDragStart);
-        btn.addEventListener('dragend', handleDragEnd);
-        container.appendChild(btn);
-      });
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    function handleDragStart(e) {
-      draggedItem = this;
-      setTimeout(() => this.style.opacity = '0.5', 0);
-    }
+        body {
+            /* font-family: var(--font-family); */
+            --font-family: 'Roboto Mono', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            min-height: 100vh;
+            padding: 0.5rem;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            background-image: url('https://www.transparenttextures.com/patterns/diagonal-noise.png');
+            background-repeat: repeat;
+        }
 
-    function handleDragEnd(e) {
-      this.style.opacity = '1';
-      draggedItem = null;
-    }
+        .container {
+            width: 100%;
+            max-width: 300px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333;
+        }
 
-    function handleDragOver(e) {
-      e.preventDefault();
-    }
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-bottom: 2px solid var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    function handleDragEnter(e) {
-      e.target.classList.add('draggable-over');
-    }
+        header .date-range {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.2rem;
 
-    function handleDragLeave(e) {
-      e.target.classList.remove('draggable-over');
-    }
+        }
 
-    function handleDropToSlot(e, target) {
-      e.preventDefault();
-      if (!draggedItem) return;
-      const name = draggedItem.getAttribute('data-name');
-      const assignedNamesSpan = target.querySelector('.assigned-names');
-      if ([...assignedNamesSpan.childNodes].some(n => n.textContent === name)) return;
-      const span = document.createElement('span');
-      span.textContent = name;
-      span.style.marginLeft = '6px';
-      span.style.fontWeight = 'bold';
-      span.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        span.remove();
-      });
-      assignedNamesSpan.appendChild(span);
-      target.classList.remove('draggable-over');
-    }
+        header .date-picker {
+            margin-top: 0.2rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--border-radius);
+            border: none;
+            font-size: 0.8rem;
+            background: #333;
+            color: white;
+            font-family: var(--font-family);
 
-    function handleDropToTarget(e, target) {
-      e.preventDefault();
-      if (!draggedItem) return;
-      const name = draggedItem.getAttribute('data-name');
-      if (![...target.children].some(child => child.textContent === name)) {
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            font-weight: bold;
+        }
+
+        .schedule {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .schedule-item {
+            padding: 0.3rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background var(--transition-speed), transform var(--transition-speed);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--dark-gray);
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .schedule-item:nth-child(even) {
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .draggable-over {
+            outline: 2px dashed var(--accent-color);
+            background: #3a3a3a !important;
+        }
+
+        .footer-section {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            background: #222;
+            border-top: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-section>div {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section label {
+            display: block;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            color: var(--accent-color);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .target-area {
+            background: #333;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            min-height: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            align-items: flex-start;
+            border: 1px dashed var(--secondary-color);
+        }
+
+        .target-area span {
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background var(--transition-speed);
+            font-family: var(--font-family);
+        }
+
+        .target-area span:hover {
+            background: var(--accent-color);
+            color: black;
+        }
+
+        .name-buttons-container {
+            position: sticky;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            padding: 1rem;
+            flex-shrink: 0;
+            border: 1px solid #333;
+            font-family: var(--font-family);
+        }
+
+        .name-buttons-container h2 {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .name-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        button.name-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius);
+            cursor: grab;
+            transition: background var(--transition-speed), transform var(--transition-speed);
+            font-size: 0.85rem;
+            text-align: center;
+            font-family: var(--font-family);
+            letter-spacing: 0.5px;
+            border: 1px solid #111;
+        }
+
+        button.name-btn:hover {
+            background: var(--accent-color);
+            color: black;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        #archive-section {
+            width: 100%;
+            height: 860px;
+            max-width: 400px;
+            max-height: 720px;
+            /* margin-top: 1.5rem; */
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            border: 1px solid #333;
+            font-weight: bolder;
+         
+        }
+
+        #archive {
+            max-height: 700px;
+            overflow-y: auto;
+            padding: 0.1rem;
+           
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            #archive-section {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Первый график -->
+    <div class="container">
+        <header>
+            <div class="date-range" id="dateRange1">Обрати дату</div>
+            <input type="date" class="date-picker" id="datePicker1" />
+        </header>
+        <main>
+            <section class="time-column">
+                <div id="schedule1" class="schedule"></div>
+            </section>
+        </main>
+        <footer class="footer-section">
+            <div>
+                <label for="leader1">Черговий:</label>
+                <div id="leader1" class="target-area" ondragover="handleDragOver(event)"
+                    ondrop="handleDropToLeader(event, this)"></div>
+            </div>
+            <div>
+                <label for="absent1">Увал:</label>
+                <div id="absent1" class="target-area" ondragover="handleDragOver(event)"
+                    ondrop="handleDropToTarget(event, this)"></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Второй график -->
+    <div class="container">
+        <header>
+            <div class="date-range" id="dateRange2">Обрати дату</div>
+            <input type="date" class="date-picker" id="datePicker2" />
+        </header>
+        <main>
+            <section class="time-column">
+                <div id="schedule2" class="schedule"></div>
+            </section>
+        </main>
+        <footer class="footer-section">
+            <div>
+                <label for="leader2">Черговий:</label>
+                <div id="leader2" class="target-area" ondragover="handleDragOver(event)"
+                    ondrop="handleDropToLeader(event, this)"></div>
+            </div>
+            <div>
+                <label for="absent2">Увал:</label>
+                <div id="absent2" class="target-area" ondragover="handleDragOver(event)"
+                    ondrop="handleDropToTarget(event, this)"></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- База имён справа -->
+    <div class="name-buttons-container">
+        <!-- <h2>Сотрудники</h2> -->
+        <button onclick="saveData()"
+            style="margin-bottom: 1rem; width: 100%; padding: 0.5rem; background: var(--accent-color); color: black; font-weight: bold;">Зберегти
+            в архів</button>
+        <div id="name-buttons" class="name-buttons"></div>
+    </div>
+
+    <!-- Архив -->
+    <div id="archive-section" class="container">
+        <header>
+            <div class="date-range">Чергування:</div>
+        </header>
+        <main>
+            <div id="archive" style="padding: 1rem;"></div>
+        </main>
+    </div>
+
+    <script>
+        const names = [
+            "НАТО", "Нік", "Порш", "Тесла", "Жекос",
+            "Кот", "Вірус", "Грозний", "Падре", "Сіма",
+            "Ваха", "Каїр",
+        ];
+        const timeSlots = [
+            "08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00",
+            "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00",
+            "20:00 - 22:00", "22:00 - 00:00", "00:00 - 02:00",
+            "02:00 - 04:00", "04:00 - 06:00", "06:00 - 08:00"
+        ];
+        let draggedItem = null;
+
+        // Создание слотов расписания
+        function createScheduleSlots(containerId, dateRangeId, datePickerId) {
+            const schedule = document.getElementById(containerId);
+            schedule.innerHTML = '';
+            timeSlots.forEach((slot, index) => {
+                const div = document.createElement('div');
+                div.className = 'schedule-item';
+                div.setAttribute('data-id', `slot-${index}`);
+                div.setAttribute('data-time', slot);
+                div.setAttribute('draggable', true);
+                div.innerHTML = `<strong>${slot}</strong><span class="assigned-names" style="margin-left: 10px; font-weight: bold;"></span>`;
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('drop', (e) => handleDropToSlot(e, div));
+                div.addEventListener('dragenter', handleDragEnter);
+                div.addEventListener('dragleave', handleDragLeave);
+                schedule.appendChild(div);
+            });
+
+            // Обработчик даты
+            document.getElementById(datePickerId).addEventListener('change', function () {
+                const selectedDate = new Date(this.value);
+                if (!isNaN(selectedDate.getTime())) {
+                    const day = String(selectedDate.getDate()).padStart(2, '0');
+                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    const nextDay = new Date(selectedDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    const nday = String(nextDay.getDate()).padStart(2, '0');
+                    const nmonth = String(nextDay.getMonth() + 1).padStart(2, '0');
+                    document.getElementById(dateRangeId).textContent = `с ${day}.${month} по ${nday}.${nmonth}`;
+
+                    // Автоматическая загрузка данных при выборе даты
+                    const archive = JSON.parse(localStorage.getItem('archive') || '{}');
+                    const date = this.value;
+                    const container = containerId;
+                    const savedData = archive[date];
+                    if (!savedData) return;
+
+                    const scheduleKey = container === 'schedule1' ? 'schedule1' : 'schedule2';
+                    const data = savedData[scheduleKey];
+                    if (!data) return;
+
+                    // Очистка текущих назначений
+                    const slots = document.querySelectorAll(`#${container} .schedule-item`);
+                    slots.forEach(slot => {
+                        slot.querySelector('.assigned-names').innerHTML = '';
+                    });
+
+                    // Восстановление слотов
+                    Object.entries(data.shifts).forEach(([time, names]) => {
+                        const slot = [...document.querySelectorAll(`#${container} .schedule-item`)].find(s => s.getAttribute('data-time') === time);
+                        if (slot) {
+                            const assignedNamesSpan = slot.querySelector('.assigned-names');
+                            names.forEach(name => {
+                                const span = document.createElement('span');
+                                span.textContent = name;
+                                span.style.marginLeft = '6px';
+                                span.style.fontWeight = 'bold';
+                                span.addEventListener('click', (ev) => {
+                                    ev.stopPropagation();
+                                    span.remove();
+                                });
+                                assignedNamesSpan.appendChild(span);
+                            });
+                        }
+                    });
+
+                    // Восстановление черговий и увал
+                    const leaderId = container === 'schedule1' ? 'leader1' : 'leader2';
+                    const absentId = container === 'schedule1' ? 'absent1' : 'absent2';
+
+                    const leaderDiv = document.getElementById(leaderId);
+                    leaderDiv.innerHTML = '';
+                    data.leader.forEach(name => {
+                        const span = document.createElement('span');
+                        span.textContent = name;
+                        span.addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            span.remove();
+                        });
+                        leaderDiv.appendChild(span);
+                    });
+
+                    const absentDiv = document.getElementById(absentId);
+                    absentDiv.innerHTML = '';
+                    data.absent.forEach(name => {
+                        const span = document.createElement('span');
+                        span.textContent = name;
+                        span.addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            span.remove();
+                        });
+                        absentDiv.appendChild(span);
+                    });
+                } else {
+                    document.getElementById(dateRangeId).textContent = 'Выберите дату';
+                }
+            });
+        }
+
+        // Создание кнопок сотрудников
+        function createNameButtons() {
+            const container = document.getElementById('name-buttons');
+            container.innerHTML = '';
+            names.forEach((name) => {
+                const btn = document.createElement('button');
+                btn.className = 'name-btn';
+                btn.textContent = name;
+                btn.setAttribute('draggable', true);
+                btn.setAttribute('data-name', name);
+                btn.addEventListener('dragstart', handleDragStart);
+                btn.addEventListener('dragend', handleDragEnd);
+                container.appendChild(btn);
+            });
+        }
+
+        // Обработчики drag-and-drop
+        function handleDragStart(e) {
+            draggedItem = this;
+            setTimeout(() => this.style.opacity = '0.5', 0);
+        }
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            draggedItem = null;
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+        function handleDragEnter(e) {
+            e.target.classList.add('draggable-over');
+        }
+        function handleDragLeave(e) {
+            e.target.classList.remove('draggable-over');
+        }
+        function handleDropToSlot(e, target) {
+            e.preventDefault();
+            if (!draggedItem) return;
+            const name = draggedItem.getAttribute('data-name');
+            const assignedNamesSpan = target.querySelector('.assigned-names');
+            // Проверка на дубликат
+            if ([...assignedNamesSpan.childNodes].some(n => n.textContent === name)) return;
+            const span = document.createElement('span');
+            span.textContent = name;
+            span.style.marginLeft = '6px';
+            span.style.fontWeight = 'bold';
+            span.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                span.remove();
+            });
+            assignedNamesSpan.appendChild(span);
+            target.classList.remove('draggable-over');
+        }
+
+       function handleDropToTarget(e, target) {
+    e.preventDefault();
+    if (!draggedItem) return;
+    const name = draggedItem.getAttribute('data-name');
+    if (![...target.children].some(child => child.textContent === name)) {
         const span = document.createElement('span');
         span.textContent = name;
+        span.style.backgroundColor = 'var(--absent-color)';
+        span.style.color = 'black';         // Чёрный цвет текста
+        span.style.fontWeight = 'bold';     // Жирный шрифт
         span.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          span.remove();
+            ev.stopPropagation();
+            span.remove();
         });
         target.appendChild(span);
-      }
     }
+}
 
-    function handleDropToLeader(e, target) {
-      e.preventDefault();
-      if (!draggedItem) return;
-      target.innerHTML = '';
-      const name = draggedItem.getAttribute('data-name');
-      const span = document.createElement('span');
-      span.textContent = name;
-      span.addEventListener('click', (ev) => {
+function handleDropToLeader(e, target) {
+    e.preventDefault();
+    if (!draggedItem) return;
+    target.innerHTML = '';
+    const name = draggedItem.getAttribute('data-name');
+    const span = document.createElement('span');
+    span.textContent = name;
+    span.style.backgroundColor = 'var(--leader-color)';
+    span.style.color = 'black';             // Чёрный цвет текста
+    span.style.fontWeight = 'bold';         // Жирный шрифт
+    span.addEventListener('click', (ev) => {
         ev.stopPropagation();
         span.remove();
-      });
-      target.appendChild(span);
-    }
+    });
+    target.appendChild(span);
+}
 
-    // Инициализация
-    createScheduleSlots('schedule1', 'dateRange1', 'datePicker1');
-    createNameButtons();
-  </script>
+        // Сохранение данных в архив
+        function saveData() {
+            const date1 = document.getElementById('datePicker1').value;
+            const date2 = document.getElementById('datePicker2').value;
+
+            if (!date1 || !date2) {
+                alert('Выберите даты для обоих графиков');
+                return;
+            }
+
+            const archive = JSON.parse(localStorage.getItem('archive') || '{}');
+
+            // Сохранение графика 1
+            const schedule1Data = collectScheduleData('schedule1', 'leader1', 'absent1');
+            if (!archive[date1]) archive[date1] = {};
+            archive[date1].schedule1 = schedule1Data;
+
+            // Сохранение графика 2
+            const schedule2Data = collectScheduleData('schedule2', 'leader2', 'absent2');
+            if (!archive[date2]) archive[date2] = {};
+            archive[date2].schedule2 = schedule2Data;
+
+            localStorage.setItem('archive', JSON.stringify(archive));
+            displayArchive();
+            alert('Данные сохранены в архиве');
+        }
+
+        function clearArchive() {
+            if (confirm("Вы уверены, что хотите очистить архив?")) {
+                localStorage.removeItem('archive');
+                displayArchive();
+                alert("Архив успешно очищен");
+            }
+        }
+
+        // Сбор данных графика
+        function collectScheduleData(scheduleId, leaderId, absentId) {
+            const schedule = {};
+            const slots = document.querySelectorAll(`#${scheduleId} .schedule-item`);
+            slots.forEach(slot => {
+                const time = slot.getAttribute('data-time');
+                const assignedNames = [...slot.querySelectorAll('.assigned-names span')].map(span => span.textContent);
+                if (assignedNames.length > 0) {
+                    schedule[time] = assignedNames;
+                }
+            });
+
+            const leader = [...document.getElementById(leaderId).children].map(span => span.textContent);
+            const absent = [...document.getElementById(absentId).children].map(span => span.textContent);
+
+            return {
+                shifts: schedule,
+                leader: leader,
+                absent: absent
+            };
+        }
+
+        // Отображение архива
+        function displayArchive() {
+            const archive = JSON.parse(localStorage.getItem('archive') || '{}');
+            const archiveDiv = document.getElementById('archive');
+            archiveDiv.innerHTML = '';
+            if (Object.keys(archive).length === 0) {
+                archiveDiv.textContent = 'Архів порожній';
+                return;
+            }
+
+            Object.entries(archive).forEach(([date, data]) => {
+                const dateObj = new Date(date);
+
+                // Форматирование даты и дня недели на украинском языке
+                const optionsDate = { day: 'numeric', month: 'long' }; // "1", "червня"
+                const optionsDay = { weekday: 'long' }; // "неділя"
+
+                const formattedDate = new Intl.DateTimeFormat('uk-UA', optionsDate).format(dateObj);
+                const formattedDay = new Intl.DateTimeFormat('uk-UA', optionsDay).format(dateObj);
+
+                // Український формат: "1 червня, неділя"
+                const prettyDate = `${formattedDate}, ${formattedDay}`;
+
+                const dateDiv = document.createElement('div');
+                dateDiv.style.marginBottom = '1.5rem';
+
+                // Дата іншим кольором (var(--accent-color))
+                dateDiv.innerHTML = `<strong style="color: var(--accent-color);">${prettyDate}</strong>`;
+
+                ['schedule1', 'schedule2'].forEach(scheduleKey => {
+                    const scheduleData = data[scheduleKey];
+                    if (!scheduleData) return;
+
+                    const scheduleDiv = document.createElement('div');
+                    scheduleDiv.style.marginLeft = '1rem';
+
+                    // "Черговий" и "Увал" — стилізовані
+                    const infoDiv = document.createElement('div');
+                    infoDiv.style.marginLeft = '1rem';
+                    infoDiv.innerHTML = `
+        <br>
+        <span style="color: var(--third-color);">Черговий:</span> <span style="color: white;">${scheduleData.leader.join(', ') || 'Нет'}</span><br>
+        <span style="color: var(--fourth-color);">Увал:</span> <span style="color: white;">${scheduleData.absent.join(', ') || 'Нет'}</span>
+        <br><br>
+      `;
+                    scheduleDiv.appendChild(infoDiv);
+
+                    const slotsDiv = document.createElement('div');
+                    slotsDiv.style.marginLeft = '1rem';
+
+                    Object.entries(scheduleData.shifts).forEach(([time, names]) => {
+                        const slotDiv = document.createElement('div');
+                        slotDiv.innerHTML = `<strong>${time}:</strong> ${names.join(', ')}`;
+                        slotsDiv.appendChild(slotDiv);
+                    });
+
+                    scheduleDiv.appendChild(slotsDiv);
+                    dateDiv.appendChild(scheduleDiv);
+                });
+
+                archiveDiv.appendChild(dateDiv);
+            });
+        }
+        // Инициализация
+        createScheduleSlots('schedule1', 'dateRange1', 'datePicker1');
+        createScheduleSlots('schedule2', 'dateRange2', 'datePicker2');
+        createNameButtons();
+        displayArchive(); // Отображение архива при загрузке
+    </script>
 </body>
+
 </html>
