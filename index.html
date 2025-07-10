@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,7 +11,7 @@
             margin: 0;
             padding: 0;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -19,22 +20,36 @@
             align-items: center;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 10px;
+            background: #050505;
         }
-        
+
         .container {
-            width: 100%;
-            max-width: 400px;
-            max-height: 95vh;
+
+            z-index: 10;
+
+
+
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: calc(100vw * 16 / 9);
+            max-height: 100vh;
+            max-width: calc(100vh * 9 / 16);
             background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 15px 10px;
+            /* background: linear-gradient(180deg, #0f0f0f, #3b3b3b); */
+            border-radius: 20px;
+            box-shadow: 0 0 120px rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(150px);
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
+            justify-content: space-between;
+            overflow: hidden;
+            position: absolute;
+            /* padding-bottom: 10px; */
+             padding: 10px;
         }
-        
+
         .date-picker {
             width: 100%;
             padding: 8px 12px;
@@ -45,40 +60,41 @@
             background: url('data:image/svg+xml;utf8,<svg fill="%23999" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM5 5V7H3V5c0-.55.45-1 1-1h1V5H5zm2 2h2V5H7v2zM3 19v-2h2v2H3zm2 0h2v-2H5v2zm10-14V3h2v2h-2zm-4 0V3h2v2h-2zm-4 0V3h2v2H7zm12 0h-2V5h2v2zM19 9H5v11h14V9z"/></svg>') no-repeat right 10px center;
             background-size: 16px;
         }
-        
+
         .date-picker:focus {
             border-color: #4a90e2;
             outline: none;
             box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
         }
-        
+
         table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 13px;
+            font-size: 18px;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
-        
+
         thead {
             background: #4a90e2;
         }
-        
-        th, td {
+
+        th,
+        td {
             padding: 6px 8px;
             text-align: center;
             border-bottom: 1px solid #eee;
             white-space: nowrap;
             transition: all 0.3s ease;
         }
-        
+
         th {
             color: white;
             font-weight: 600;
         }
-        
+
         select {
             width: 100%;
             padding: 6px 8px;
@@ -93,64 +109,65 @@
             background-position: right 8px center;
             background-size: 14px;
         }
-        
+
         select:focus {
             border-color: #4a90e2;
             outline: none;
             box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
         }
-        
+
         .duty-row {
-              background-color: #f7e4d2;
-            
-                   color: #970202;
-              font-weight: bold;
+            background-color: #f7e4d2;
+
+            color: #970202;
+            font-weight: bold;
         }
-        
+
         .duty-row select {
-           background-color: #f7e4d2;
+            background-color: #f7e4d2;
             border-color: #c8e6c9;
-              color: #853303;
-              font-weight: bold;
-        
+            color: #853303;
+            font-weight: bold;
+
         }
-        
+
         .release-row {
             background-color: #e8f5e9;
             /* background-color: #ffebee; */
         }
-        
+
         .release-row select {
-             background-color: #e8f5e9;
+            background-color: #e8f5e9;
             border-color: #cdffd1;
-               color: #1d9b04;
-              font-weight: bold;
+            color: #1d9b04;
+            font-weight: bold;
         }
-        
+
         .time-cell {
             font-weight: 500;
             color: #333;
             min-width: 80px;
         }
-        
+
         @media (max-width: 600px) {
             .container {
                 padding: 10px 8px;
             }
-            
+
             .date-picker {
                 font-size: 13px;
                 padding: 6px 10px;
             }
-            
+
             table {
                 font-size: 12px;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 4px 6px;
             }
-            
+
             select {
                 font-size: 11px;
                 padding: 4px 6px;
@@ -158,14 +175,16 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-      
+
         <table id="schedule-table">
             <thead>
                 <tr>
                     <th class="time-cell"></th>
-                    <th id="date-header">  <input type="date" id="date-picker" class="date-picker" value="2024-07-11" onchange="updateDateHeader()"></th>
+                    <th id="date-header"> <input type="date" id="date-picker" class="date-picker" value="2024-07-11"
+                            onchange="updateDateHeader()"></th>
                 </tr>
             </thead>
             <tbody>
@@ -176,9 +195,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tbody = document.querySelector('#schedule-table tbody');
-            
+
             const names = [
-                 "***",
+                "***",
 
                 "АКРОБАТ",
                 "ТЕСЛА",
@@ -189,11 +208,11 @@
                 "ГРОЗНИЙ",
                 "КОТ",
                 "ЖЕКОС",
-                
+
                 "ГРІФОН",
                 "ВІРУС",
                 "БАБАЙ",
-                
+
             ];
 
             function createSelect() {
@@ -219,7 +238,7 @@
                 if (rowClass) {
                     row.classList.add(rowClass);
                 }
-                
+
                 const timeCell = document.createElement('td');
                 timeCell.className = "time-cell";
                 timeCell.textContent = labelText;
@@ -253,4 +272,5 @@
         });
     </script>
 </body>
+
 </html>
