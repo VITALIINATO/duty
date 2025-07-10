@@ -264,11 +264,23 @@
                 tbody.appendChild(row);
             }
 
-            // Добавление строк "Черговий" и "Звільнення"
-            tbody.appendChild(createDataRow('Черговий', 'duty-row'));
-            for (let i = 0; i < 5; i++) {
-                tbody.appendChild(createDataRow('Звільнення', 'release-row'));
-            }
+// Добавление пустой строки после "Черговий"
+const blankRow = document.createElement('tr');
+const blankCell1 = document.createElement('td');
+blankCell1.className = "time-cell";
+blankCell1.textContent = "";
+const blankCell2 = document.createElement('td');
+blankRow.appendChild(blankCell1);
+blankRow.appendChild(blankCell2);
+tbody.appendChild(blankRow);
+         // Добавление строки "Черговий"
+tbody.appendChild(createDataRow('Черговий', 'duty-row'));
+
+
+// Добавление строк "Звільнення"
+for (let i = 0; i < 5; i++) {
+    tbody.appendChild(createDataRow('Звільнення', 'release-row'));
+}
         });
     </script>
 </body>
