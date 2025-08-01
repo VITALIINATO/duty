@@ -24,11 +24,7 @@
         }
 
         .container {
-
             z-index: 10;
-
-
-
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -37,7 +33,6 @@
             max-height: 100vh;
             max-width: calc(100vh * 9 / 16);
             background: #ffffff;
-            /* background: linear-gradient(180deg, #0f0f0f, #3b3b3b); */
             border-radius: 20px;
             box-shadow: 0 0 120px rgba(0, 255, 255, 0.2);
             backdrop-filter: blur(150px);
@@ -46,24 +41,40 @@
             justify-content: space-between;
             overflow: hidden;
             position: absolute;
-            /* padding-bottom: 10px; */
-             padding: 10px;
+            padding: 10px;
         }
 
-        .date-picker {
+        .date-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .date-display {
             width: 100%;
             padding: 8px 12px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 14px;
-            appearance: none;
+            text-align: center;
+            cursor: pointer;
             background: url('data:image/svg+xml;utf8,<svg fill="%23999" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM5 5V7H3V5c0-.55.45-1 1-1h1V5H5zm2 2h2V5H7v2zM3 19v-2h2v2H3zm2 0h2v-2H5v2zm10-14V3h2v2h-2zm-4 0V3h2v2h-2zm-4 0V3h2v2H7zm12 0h-2V5h2v2zM19 9H5v11h14V9z"/></svg>') no-repeat right 10px center;
             background-size: 16px;
+            color: #333;
         }
 
-        .date-picker:focus {
+        .date-picker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .date-picker:focus + .date-display,
+        .date-display:hover {
             border-color: #4a90e2;
-            outline: none;
             box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
         }
 
@@ -118,7 +129,6 @@
 
         .duty-row {
             background-color: #f7e4d2;
-
             color: #970202;
             font-weight: bold;
         }
@@ -128,12 +138,10 @@
             border-color: #c8e6c9;
             color: #853303;
             font-weight: bold;
-
         }
 
         .release-row {
             background-color: #e8f5e9;
-            /* background-color: #ffebee; */
         }
 
         .release-row select {
@@ -154,7 +162,7 @@
                 padding: 10px 8px;
             }
 
-            .date-picker {
+            .date-display {
                 font-size: 18px;
                 padding: 6px 10px;
             }
@@ -171,7 +179,6 @@
             select {
                 font-size: 18px;
                 padding: 4px 6px;
-                
             }
         }
     </style>
@@ -179,13 +186,16 @@
 
 <body>
     <div class="container">
-
         <table id="schedule-table">
             <thead>
                 <tr>
                     <th class="time-cell"></th>
-                    <th id="date-header"> <input type="date" id="date-picker" class="date-picker" value="2024-07-11"
-                            onchange="updateDateHeader()"></th>
+                    <th id="date-header">
+                        <div class="date-container">
+                            <input type="date" id="date-picker" class="date-picker">
+                            <div id="date-display" class="date-display">ДД.ММ</div>
+                        </div>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -195,11 +205,42 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const datePicker = document.getElementById('date-picker');
+            const dateDisplay = document.getElementById('date-display');
+            
+            // Получаем текущую дату
+            function getCurrentDate() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            
+            // Форматируем дату для отображения
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.`;
+            }
+            
+            // Устанавливаем текущую дату при загрузке
+            datePicker.value = getCurrentDate();
+            dateDisplay.textContent = formatDate(datePicker.value);
+            
+            // Обработчик изменения даты
+            datePicker.addEventListener('change', () => {
+                dateDisplay.textContent = formatDate(datePicker.value);
+            });
+            
+            // Симулируем клик по скрытому полю при клике на отображаемый элемент
+            dateDisplay.addEventListener('click', () => {
+                datePicker.click();
+            });
+
             const tbody = document.querySelector('#schedule-table tbody');
 
             const names = [
                 "***",
-
                 "АКРОБАТ",
                 "ТЕСЛА",
                 "НІК",
@@ -207,15 +248,12 @@
                 "ПАДРЕ",
                 "КОТ",
                 "ГРОЗНИЙ",
-                 "ГРІФОН",
-                
+                "ГРІФОН",
                 "СІМА",
                 "ЖЕКОС",
-"КАЇР",
-              "БАБАЙ",  
-                "ВІРУС",
-                
-
+                "КАЇР",
+                "БАБАЙ",  
+                "ВІРУС"
             ];
 
             function createSelect() {
@@ -227,13 +265,6 @@
                     select.appendChild(option);
                 });
                 return select;
-            }
-
-            function updateDateHeader() {
-                const dateInput = document.getElementById('date-picker');
-                const date = new Date(dateInput.value);
-                const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.`;
-                document.getElementById('date-header').textContent = formattedDate;
             }
 
             function createDataRow(labelText, rowClass) {
@@ -267,23 +298,23 @@
                 tbody.appendChild(row);
             }
 
-// Добавление пустой строки после "Черговий"
-const blankRow = document.createElement('tr');
-const blankCell1 = document.createElement('td');
-blankCell1.className = "time-cell";
-blankCell1.textContent = "";
-const blankCell2 = document.createElement('td');
-blankRow.appendChild(blankCell1);
-blankRow.appendChild(blankCell2);
-tbody.appendChild(blankRow);
-         // Добавление строки "Черговий"
-tbody.appendChild(createDataRow('Черговий', 'duty-row'));
+            // Добавление пустой строки после "Черговий"
+            const blankRow = document.createElement('tr');
+            const blankCell1 = document.createElement('td');
+            blankCell1.className = "time-cell";
+            blankCell1.textContent = "";
+            const blankCell2 = document.createElement('td');
+            blankRow.appendChild(blankCell1);
+            blankRow.appendChild(blankCell2);
+            tbody.appendChild(blankRow);
+            
+            // Добавление строки "Черговий"
+            tbody.appendChild(createDataRow('Черговий', 'duty-row'));
 
-
-// Добавление строк "Звільнення"
-for (let i = 0; i < 4; i++) {
-    tbody.appendChild(createDataRow('Звільнення', 'release-row'));
-}
+            // Добавление строк "Звільнення"
+            for (let i = 0; i < 4; i++) {
+                tbody.appendChild(createDataRow('Звільнення', 'release-row'));
+            }
         });
     </script>
 </body>
