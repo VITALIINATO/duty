@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,7 +10,6 @@
             margin: 0;
             padding: 0;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -22,7 +20,6 @@
             padding: 10px;
             background: #050505;
         }
-
         .container {
             z-index: 10;
             top: 50%;
@@ -43,12 +40,31 @@
             position: absolute;
             padding: 10px;
         }
-
+        .header-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+        .button {
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 100%;
+        }
+        .button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
         .date-container {
             position: relative;
             width: 100%;
         }
-
         .date-display {
             width: 100%;
             padding: 8px 12px;
@@ -61,7 +77,6 @@
             background-size: 16px;
             color: #333;
         }
-
         .date-picker {
             position: absolute;
             top: 0;
@@ -71,13 +86,11 @@
             opacity: 0;
             cursor: pointer;
         }
-
         .date-picker:focus + .date-display,
         .date-display:hover {
             border-color: #4a90e2;
             box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
         }
-
         table {
             width: 100%;
             border-collapse: separate;
@@ -87,11 +100,9 @@
             overflow: hidden;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
-
         thead {
             background: #4a90e2;
         }
-
         th,
         td {
             padding: 6px 8px;
@@ -100,12 +111,10 @@
             white-space: nowrap;
             transition: all 0.3s ease;
         }
-
         th {
             color: white;
             font-weight: 600;
         }
-
         select {
             width: 100%;
             padding: 6px 8px;
@@ -120,62 +129,51 @@
             background-position: right 8px center;
             background-size: 14px;
         }
-
         select:focus {
             border-color: #4a90e2;
             outline: none;
             box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
         }
-
         .duty-row {
             background-color: #f7e4d2;
             color: #970202;
             font-weight: bold;
         }
-
         .duty-row select {
             background-color: #f7e4d2;
             border-color: #c8e6c9;
             color: #853303;
             font-weight: bold;
         }
-
         .release-row {
             background-color: #e8f5e9;
         }
-
         .release-row select {
             background-color: #e8f5e9;
             border-color: #cdffd1;
             color: #1d9b04;
             font-weight: bold;
         }
-
         .time-cell {
             font-weight: 500;
             color: #333;
             min-width: 80px;
         }
-
         @media (max-width: 600px) {
             .container {
                 padding: 10px 8px;
             }
-
             .date-display {
                 font-size: 18px;
                 padding: 6px 10px;
             }
-
             table {
                 font-size: 18px;
             }
-
             th,
             td {
                 padding: 4px 6px;
             }
-
             select {
                 font-size: 18px;
                 padding: 4px 6px;
@@ -183,13 +181,16 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <table id="schedule-table">
             <thead>
                 <tr>
-                    <th class="time-cell"></th>
+                    <th class="time-cell">
+                        <div class="header-controls">
+                            <button id="prev-button" class="button">Попереднє</button>
+                        </div>
+                    </th>
                     <th id="date-header">
                         <div class="date-container">
                             <input type="date" id="date-picker" class="date-picker">
@@ -207,6 +208,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             const datePicker = document.getElementById('date-picker');
             const dateDisplay = document.getElementById('date-display');
+            const prevButton = document.getElementById('prev-button');
+            
+            // Data structure to store selections by date
+            let scheduleData = {};
+            
+            // Пытаемся загрузить сохраненные данные
+            try {
+                const savedData = localStorage.getItem('scheduleData');
+                if (savedData) {
+                    scheduleData = JSON.parse(savedData);
+                }
+            } catch (e) {
+                console.log("Could not load saved data");
+            }
             
             // Получаем текущую дату
             function getCurrentDate() {
@@ -230,15 +245,15 @@
             // Обработчик изменения даты
             datePicker.addEventListener('change', () => {
                 dateDisplay.textContent = formatDate(datePicker.value);
+                loadSelections();
             });
             
             // Симулируем клик по скрытому полю при клике на отображаемый элемент
             dateDisplay.addEventListener('click', () => {
                 datePicker.click();
             });
-
+            
             const tbody = document.querySelector('#schedule-table tbody');
-
             const names = [
                 "***",
                 "АКРОБАТ",
@@ -255,7 +270,7 @@
                 "БАБАЙ",  
                 "ВІРУС"
             ];
-
+            
             function createSelect() {
                 const select = document.createElement('select');
                 names.forEach(name => {
@@ -266,13 +281,12 @@
                 });
                 return select;
             }
-
+            
             function createDataRow(labelText, rowClass) {
                 const row = document.createElement('tr');
                 if (rowClass) {
                     row.classList.add(rowClass);
                 }
-
                 const timeCell = document.createElement('td');
                 timeCell.className = "time-cell";
                 timeCell.textContent = labelText;
@@ -280,7 +294,7 @@
                 row.appendChild(createSelect());
                 return row;
             }
-
+            
             // Заполнение таблицы
             for (let i = 0; i < 12; i++) {
                 const hour = 8 + i * 2;
@@ -288,7 +302,6 @@
                 const start = hour % 24;
                 const end = nextHour % 24;
                 const timeRange = `${String(start).padStart(2, '0')}:00 - ${String(end).padStart(2, '0')}:00`;
-
                 const row = document.createElement('tr');
                 const timeCell = document.createElement('td');
                 timeCell.className = "time-cell";
@@ -297,7 +310,7 @@
                 row.appendChild(createSelect());
                 tbody.appendChild(row);
             }
-
+            
             // Добавление пустой строки после "Черговий"
             const blankRow = document.createElement('tr');
             const blankCell1 = document.createElement('td');
@@ -310,13 +323,89 @@
             
             // Добавление строки "Черговий"
             tbody.appendChild(createDataRow('Черговий', 'duty-row'));
-
+            
             // Добавление строк "Звільнення"
             for (let i = 0; i < 4; i++) {
                 tbody.appendChild(createDataRow('Звільнення', 'release-row'));
             }
+            
+            // Get all select elements
+            function getSelectElements() {
+                return document.querySelectorAll('#schedule-table select');
+            }
+            
+            // Reset to default values (first option in each select)
+            function resetToDefault() {
+                getSelectElements().forEach(select => {
+                    select.selectedIndex = 0;
+                });
+            }
+            
+            // Save current selections for the current date
+            function saveSelections() {
+                const date = datePicker.value;
+                const selections = [];
+                getSelectElements().forEach(select => {
+                    selections.push(select.value);
+                });
+                scheduleData[date] = selections;
+                
+                // Сохраняем данные в localStorage
+                try {
+                    localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                } catch (e) {
+                    console.log("Could not save data");
+                }
+            }
+            
+            // Load selections for the current date
+            function loadSelections() {
+                const date = datePicker.value;
+                const selections = scheduleData[date];
+                if (selections) {
+                    const selects = getSelectElements();
+                    for (let i = 0; i < selects.length && i < selections.length; i++) {
+                        const select = selects[i];
+                        // Устанавливаем значение только если оно существует в списке
+                        const optionExists = Array.from(select.options).some(opt => opt.value === selections[i]);
+                        if (optionExists) {
+                            select.value = selections[i];
+                        } else {
+                            select.selectedIndex = 0; // Если значение не существует, выбираем первое
+                        }
+                    }
+                } else {
+                    resetToDefault();
+                }
+            }
+            
+            // Set date to yesterday
+            function goToPreviousDay() {
+                const currentDate = new Date(datePicker.value);
+                currentDate.setDate(currentDate.getDate() - 1);
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const newDate = `${year}-${month}-${day}`;
+                
+                datePicker.value = newDate;
+                dateDisplay.textContent = formatDate(newDate);
+                
+                // Загружаем данные для новой даты
+                loadSelections();
+            }
+            
+            // Add event listener for the "Предыдущее" button
+            prevButton.addEventListener('click', goToPreviousDay);
+            
+            // При загрузке страницы всегда сбрасываем на значения по умолчанию
+            resetToDefault();
+            
+            // При изменении любого select сохраняем данные
+            getSelectElements().forEach(select => {
+                select.addEventListener('change', saveSelections);
+            });
         });
     </script>
 </body>
-
 </html>
