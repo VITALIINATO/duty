@@ -82,7 +82,7 @@
             font-weight: bolder;
             text-align: center;
             cursor: pointer;
-            background: url('data:image/svg+xml;utf8,<svg fill="%23999" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM5 5V7H3V5c0-.55.45-1 1-1h1V5H5zm2 2h2V5H7v2zM3 19v-2h2v2H3zm2 0h2v-2H5v2zm10-14V3h2v2h-2zm-4 0V3h2v2h-2zm-4 0V3h2v2H7zm12 0h-2V5h2v2zM19 9H5v11h14V9z"/></svg>') no-repeat right 10px center;
+            background: url('image/svg+xml;utf8,<svg fill="%23999" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM5 5V7H3V5c0-.55.45-1 1-1h1V5H5zm2 2h2V5H7v2zM3 19v-2h2v2H3zm2 0h2v-2H5v2zm10-14V3h2v2h-2zm-4 0V3h2v2h-2zm-4 0V3h2v2H7zm12 0h-2V5h2v2zM19 9H5v11h14V9z"/></svg>') no-repeat right 10px center;
             background-size: 16px;
             color: #f7de02;
         }
@@ -140,7 +140,7 @@
             background-color: #f9f9f9;
             transition: all 0.3s ease;
             appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-image: url('image/svg+xml;utf8,<svg fill="%23666" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
             background-repeat: no-repeat;
             background-position: right 8px center;
             background-size: 14px;
@@ -216,7 +216,7 @@
                 <tr>
                     <th class="time-cell">
                         <div class="header-controls">
-                            <button id="prev-button" class="button">Попереднє</button>
+                            <button id="prev-button" class="button">←</button>
                         </div>
                     </th>
                     <th id="date-header">
@@ -288,6 +288,7 @@
                 "СКІФ",
                 "ВЕСЕЛКА",
                 "СПАРТА",
+                "ЛАДАН",
                 "ГЛАЗ",
                 "ЮГ",
                 "ПАСТУХ",
@@ -300,6 +301,25 @@
                 "ТЕСЛА",
                 "НІК",
                 "НАТО",
+                "ФІМА",
+
+                "ПАДРЕ",
+                "ВІРУС",
+                "АКУЛА",
+
+                "СІМА",
+                "КАЇР",
+                "ГРОЗНИЙ",
+
+                "ГРІФОН",
+                "ФІЛЯ",
+                "КОТ",
+                "ЖЕКОС",
+            ];
+
+            const names3 = [
+                "***",
+                "АКРОБАТ",
 
                 "ПАДРЕ",
                 "ВІРУС",
@@ -314,18 +334,18 @@
                 "КОТ",
                 "ЖЕКОС",
 
+                "ТЕСЛА",
+                "НІК",
+                "НАТО",
+                "ФІМА",
 
                 "ХАМ",
                 "ХОХОЛ",
                 "ТІМОХА",
-                
+
                 "БАГС",
                 "МУЛЬТИК",
                 "ВЖИК",
-
-
-
-
             ];
 
             function createSelect(options) {
@@ -339,7 +359,7 @@
                 return select;
             }
 
-            function createDataRow(labelText, rowClass, useNames2 = false) {
+            function createDataRow(labelText, rowClass, options) {
                 const row = document.createElement('tr');
                 if (rowClass) {
                     row.classList.add(rowClass);
@@ -348,7 +368,7 @@
                 timeCell.className = "time-cell";
                 timeCell.textContent = labelText;
                 row.appendChild(timeCell);
-                row.appendChild(createSelect(useNames2 ? names2 : names));
+                row.appendChild(createSelect(options));
                 return row;
             }
 
@@ -379,11 +399,11 @@
             tbody.appendChild(blankRow);
 
             // Добавление строки "Черговий" с names2
-            tbody.appendChild(createDataRow('Черговий', 'duty-row', true));
+            tbody.appendChild(createDataRow('Черговий', 'duty-row', names2));
 
-            // Добавление строк "Звільнення" с names2
+            // Добавление строк "Звільнення" с names3
             for (let i = 0; i < 4; i++) {
-                tbody.appendChild(createDataRow('Звільнення', 'release-row', true));
+                tbody.appendChild(createDataRow('Звільнення', 'release-row', names3));
             }
 
             // Get all select elements
@@ -394,14 +414,9 @@
             // Reset to default values (first option in each select)
             function resetToDefault() {
                 const selects = getSelectElements();
-                selects.forEach((select, index) => {
-                    // Определяем, какой список использовать для сброса
-                    if (index >= 12 && index <= 17) { // Черговий (индекс 12) и Звільнення (индексы 13-16)
-                        select.selectedIndex = 0;
-                    } else {
-                        select.selectedIndex = 0;
-                    }
-                });
+                for (let i = 0; i < selects.length; i++) {
+                    selects[i].selectedIndex = 0;
+                }
             }
 
             // Save current selections for the current date
